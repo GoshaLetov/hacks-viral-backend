@@ -42,3 +42,25 @@ async def get_video_part(videoId: str, clipsNum: str):
     if os.path.exists(part_path):
         return FileResponse(part_path, media_type="video/mp4")
     raise HTTPException(status_code=404, detail="Part not found")
+
+@router.delete("/api/delete")
+async def delete_video(videoId: str):
+    deleted_files = []
+    for ext in ALLOWED_EXTENSIONS:
+        file_location = os.path.join(VIDEO_STORAGE_PATH, f"{videoId}.{ext}")
+        if os.path.exists(file_location):
+            # os.remove(file_location)
+            deleted_files.append(file_location)
+
+    parts_dir = os.path.join(VIDEO_STORAGE_PATH, videoId)
+    if os.path.exists(parts_dir):
+        for file in os.listdir(parts_dir):
+            file_path = os.path.join(parts_dir, file)
+            os.remove(file_path)
+        # os.rmdir(parts_dir)
+        deleted_files.append(parts_dir)
+
+    if not deleted_files:
+        raise HTTPException(status_code=404, detail="Video not found")
+    
+    return {"info": f"Deleted files: {deleted_files}"}
