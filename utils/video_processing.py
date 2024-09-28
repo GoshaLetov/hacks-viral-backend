@@ -5,7 +5,7 @@ import os
 
 def split_video_into_parts(file_location: str, num_parts: int = 10):
     clip = VideoFileClip(file_location)
-    duration = clip.duration
+    duration = clip.duration / 10
     part_duration = duration / num_parts
     parts = []
     for i in range(num_parts):
