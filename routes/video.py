@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.encoders import jsonable_encoder
 import os
 from config import VIDEO_STORAGE_PATH
 from utils.video_processing import split_video_into_parts
@@ -42,6 +43,25 @@ async def get_video_part(videoId: str, clipsNum: str):
     if os.path.exists(part_path):
         return FileResponse(part_path, media_type="video/mp4")
     raise HTTPException(status_code=404, detail="Part not found")
+
+@router.get("/api/meta")  # Исправлено: добавлен слэш в начале пути
+async def get_video_meta(videoId: str, clipsNum: str):
+    meta = {
+        "title": "Потоп в курортном городе: Стас Михайлов и Детройт Метал Сити",
+        "description": "Смотрите эксклюзивное видео, в котором курортный город затопило из-за тропического ливня. Но есть те, кто объясняет это Стасом Михайловым и его желанием экранизировать аниме «Детройт Метал Сити». Не упустите этот интересный момент!",
+        "hashtags": [
+            "#потоп",
+            "#курортныйгород",
+            "#тропическийлиvenir",
+            "#СтасМихайлов",
+            "#ДетройтМеталСити",
+            "#аниме",
+            "#экранизация"
+        ],
+        "sentiment": "mixed",
+        "target_audience": "взрослые, интересующиеся новостями и популярной культурой"
+    }
+    return JSONResponse(content=jsonable_encoder(meta), status_code=200)
 
 @router.delete("/api/delete")
 async def delete_video(videoId: str):
